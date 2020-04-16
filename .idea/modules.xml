@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/.idea/3d_body_measurement.iml" filepath="$PROJECT_DIR$/.idea/3d_body_measurement.iml" />
-=======
-      <module fileurl="file://$PROJECT_DIR$/.idea/3d_body_mesurement.iml" filepath="$PROJECT_DIR$/.idea/3d_body_mesurement.iml" />
->>>>>>> bcf42590c8649ba4667ff8693704c0bd748e5d3b
     </modules>
   </component>
 </project>
