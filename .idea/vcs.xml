@@ -2,7 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/Test/smplpytorch" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Test/smplpytorch" vcs="" />
+    <mapping directory="$PROJECT_DIR$/Test/smplpytorch_clones" vcs="" />
     <mapping directory="$PROJECT_DIR$/Test/test_pytorch3D" vcs="Git" />
   </component>
 </project>
