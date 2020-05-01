@@ -15,17 +15,13 @@ if __name__ == '__main__':
     smpl_layer = SMPL_Layer(
         center_idx=0,
         gender='neutral',
-        model_root='smplpytorch/native/models')
+        model_root='/Users/anupamtripathi/PycharmProjects/3d_body_mesurement/Test/smpl_pytorch/smlppytorch/native/models')
 
     # Generate random pose and shape parameters
     pose_params = torch.ones(batch_size, 72) * 0
     shape_params = torch.ones(batch_size, 10)
     print(pose_params)
-    pose_params = torch.tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-         0.5, 0., -0.8, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]).float()
-    shape_params = torch.tensor([[1, 1, 0, 0, 0, 1, 0, 0, 0, 0]]).float()
-    print(pose_params)
+
 
     # GPU mode
     if cuda:
