@@ -1,4 +1,4 @@
-
+import numpy as np
 class Node():
     """A node class for A* Pathfinding"""
 
@@ -11,7 +11,7 @@ class Node():
         self.f = 0
 
     def __eq__(self, other):
-        return self.position == other.position
+        return self.position.all() == other.position.all()
 
 
 def astar(adj_list, start_idx, end_idx, verts):
@@ -89,9 +89,13 @@ def astar(adj_list, start_idx, end_idx, verts):
 
 
 def main():
-    start = 2
-    end = 3
-
+    start = 1
+    end = 6
+    adj_list = {0:[1,2], 1:[0,3], 2:[0,4], 3:[1,6], 4:[2,5,6], 5:[0,4,6], 6:[3,4,5]}
+    verts = np.array([[0,0,0],[1,2,0],[-1,2,0],[3,0,0],[6,2,0],[6,-5,0],[10,0,0]])
     path = astar(adj_list, 2, 3, verts)
 
     print(path)
+
+if __name__ == '__main__':
+    main()
