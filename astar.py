@@ -1,4 +1,6 @@
 import numpy as np
+
+
 class Node():
     """A node class for A* Pathfinding"""
 
@@ -59,11 +61,12 @@ def astar(adj_list, start_idx, end_idx, verts):
 def main():
     start_idx = 0
     end_idx = 6
-    adj_list = {0:[1,2,3], 1:[0,4], 2:[0,5], 3:[0,6,5], 4:[1,6], 5:[2,3,6], 6:[3,4,5]}
-    verts = np.array([[0,0,0],[1,2,0],[1,-2,0],[3,0,0],[6,2,0],[6,-5,0],[10,0,0]])
+    adj_list = {0: [1, 2, 3], 1: [0, 4], 2: [0, 5], 3: [0, 6, 5], 4:[1, 6], 5: [2, 3, 6], 6: [3, 4, 5]}
+    verts = np.array([[0, 0, 0], [1, 2, 0],[1, -2, 0], [100, 0, 0], [6, 2, 0], [6, -5, 0], [10, 0, 0]])
     path = astar(adj_list, start_idx, end_idx, verts)
 
     print(path)
+
 
 if __name__ == '__main__':
     main()
