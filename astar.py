@@ -14,6 +14,7 @@ class Node():
 
 
 def astar(adj_list, start_idx, end_idx, verts):
+    verts = verts.numpy()
     # Create start and end node
     start_node = Node(None, start_idx)
     start_node.g = start_node.h = start_node.f = 0
