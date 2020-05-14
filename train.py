@@ -15,6 +15,8 @@ from model import Generator, Discriminator
 import cv2
 from utils import project_mesh_silhouette
 from NOMO import Nomo
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 
 batch_size = 1
@@ -47,7 +49,10 @@ def train_discriminator(d, real, generated, optimizer, loss):
 
 if __name__ == "__main__":
 
-    mesh = load_objs_as_meshes([smpl_mesh_path], device=device, load_textures=False)
+    mesh_male = load_objs_as_meshes([smpl_mesh_path], device=device, load_textures=False)
+    mesh_female = load_objs_as_meshes([smpl_mesh_path], device=device, load_textures=False)
+    mesh = {'male': mesh_male, 'female': mesh_female}
+
     discriminator = Discriminator(inp_feature)
     generator = Generator()
 
@@ -56,22 +61,18 @@ if __name__ == "__main__":
 
     d_loss = torch.nn.BCELoss()
 
-    # Load the source and target images.
-    src_img = cv2.imread('src.jpg')
-    tar_img = cv2.imread('tar.jpg')
-
-    # We will learn to deform the source mesh by offsetting its vertices
-    # The shape of the deform parameters is equal to the total number of vertices in src_mesh
-    deform_verts = torch.full(mesh.verts_packed().shape, 0.0, device=device, requires_grad=True)
+    # deform_verts = torch.full(mesh.verts_packed().shape, 0.0, device=device, requires_grad=True)
 
     transformed_dataset = Nomo(root=path)
     dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True)
 
     for epoch in range(epochs):
-        project_mesh_silhouette(mesh, 90)
-        train_discriminator(discriminator, -1, -1, d_optimizer, d_loss)
-        # Deform the mesh
-        new_src_mesh = mesh.offset_verts(deform_verts)
+        for sample in tqdm(dataloader):
+            for angle in [0, 90, 180, 270]:
+                projection = project_mesh_silhouette(mesh[sample['gender']], angle)
+                train_discriminator(discriminator, -1, -1, d_optimizer, d_loss)
+                # Deform the mesh
+                # new_src_mesh = mesh.offset_verts(deform_verts)
 
-        loss = 0
-        print('Test Loss =  {}'.format(loss))
+                loss = 0
+                print('Test Loss =  {}'.format(loss))

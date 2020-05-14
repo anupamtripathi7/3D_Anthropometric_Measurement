@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import torch
 import re
-
+import glob
 
 path = "NOMO_preprocess/data"
 batch_size = 1
@@ -41,38 +41,48 @@ def numericalSort(value):
 #         if torch.is_tensor(idx):
 #             idx = idx.tolist()
 
+
 class Nomo(Dataset):
 
-    def __init__(self, root="NOMO_preprocess/data", gender='female'):
-        female_measurements_path = os.path.join(root, 'TC2_' + gender + '_Txt')
-        female_projections_path = os.path.join(root, gender)
-        images = np.array([[None] * 4] * 708)
-        print(images)
+    def __init__(self, folder="NOMO_preprocess/data"):
+        measurements_path = os.path.join(folder, 'NOMO-3d-400-scans_and_tc2_measurements/nomo-scans(repetitions-removed)')
+        projections_path = os.path.join(folder, 'processed_data')
 
-        self.content = []
+        for n, txt in enumerate(os.listdir(os.path.join(measurements_path, 'TC2_Female_Txt'))):
+            with open(os.path.join(measurements_path, 'TC2_Female_Txt', txt)) as f:
+                lines = f.read().strip().split('\n')[1:]
+            file_n = txt[7:11]
+            print(file_n)
 
-        for i, filename in enumerate(os.listdir(female_projections_path)):
-            print(filename)
-            if '_'+ str(i) +'_0' in filename:
-                images[i, 0] = cv2.imread(os.path.join(female_projections_path, filename))
-                print(images[i][0].shape)
-            elif '_'+ str(i) +'_90' in filename:
-                images[i, 1] = cv2.imread(os.path.join(female_projections_path, filename))
-                print("a",images[i][0].shape)
-            elif '_'+ str(i) +'_180' in filename:
-                images[i, 2] = cv2.imread(os.path.join(female_projections_path, filename))
-                print("a", images[i][0].shape)
-            elif '_' + str(i) + '_270' in filename:
-                images[i, 3] = cv2.imread(os.path.join(female_projections_path, filename))
-                print("a", images[i][0].shape)
+            for angle in [0, 90, 180, 270]:
+                img = cv2.imread(os.path.join(projections_path, 'female', 'human_{}_{}.jpg'.format()))
 
-        print(images[0,1])
-        print(self.images[0].shape)
 
-        for i, filename in enumerate(os.listdir(female_measurements_path)):
-            with open(os.path.join(female_measurements_path,filename)) as f:
-                content = f.read()
-            self.content.append(content.replace("MEASURE", "").split("\n")[1:])
+            if n == 2:
+                break
+
+        #
+        # self.content = []
+        #
+        # for i, filename in enumerate(os.listdir(female_projections_path)):
+        #     print(filename)
+        #     if '_'+ str(i) +'_0' in filename:
+        #         images[i, 0] = cv2.imread(os.path.join(female_projections_path, filename))
+        #         print(images[i][0].shape)
+        #     elif '_'+ str(i) +'_90' in filename:
+        #         images[i, 1] = cv2.imread(os.path.join(female_projections_path, filename))
+        #         print("a",images[i][0].shape)
+        #     elif '_'+ str(i) +'_180' in filename:
+        #         images[i, 2] = cv2.imread(os.path.join(female_projections_path, filename))
+        #         print("a", images[i][0].shape)
+        #     elif '_' + str(i) + '_270' in filename:
+        #         images[i, 3] = cv2.imread(os.path.join(female_projections_path, filename))
+        #         print("a", images[i][0].shape)
+        #
+        # print(images[0,1])
+        # print(self.images[0].shape)
+        #
+
 
     def __len__(self):
         return len(self.content)
@@ -89,7 +99,7 @@ class Nomo(Dataset):
 
 if __name__ == "__main__":
 
-    transformed_dataset = Nomo(root=path)
+    transformed_dataset = Nomo(path)
 
     dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True)
 
