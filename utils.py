@@ -13,3 +13,5 @@ def get_silhoutte(img):
 
 img = cv2.imread('human_0_270.jpg')
 get_silhoutte(img)
+
+
