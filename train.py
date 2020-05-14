@@ -45,7 +45,7 @@ def train_discriminator(d, real, generated, optimizer, loss):
 
 if __name__ == "__main__":
 
-    src_mesh = os.path.join('smpl.obj')
+    src_mesh = load_objs_as_meshes
     discriminator = Discriminator(inp_feature)
     generator = Generator()
 
