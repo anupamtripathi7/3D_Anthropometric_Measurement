@@ -40,9 +40,9 @@ class Nomo1(Dataset):
 
 class Nomo(Dataset):
 
-    def __init__(self, root="NOMO_preprocess/data"):
-        female_measurements_path = os.path.join(root, 'TC2_Female_Txt')
-        female_projections_path = os.path.join(root, 'female')
+    def __init__(self, root="NOMO_preprocess/data", gender = 'female'):
+        female_measurements_path = os.path.join(root, 'TC2_'+gender+'_Txt')
+        female_projections_path = os.path.join(root, gender)
         self.images = []
         self.content = []
         for i, filename in enumerate(os.listdir(female_projections_path)):
