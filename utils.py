@@ -1,6 +1,17 @@
 import cv2
 import numpy as np
 
+class Metadata:
+    def __init__(self):
+        self.batch_size = 1
+        self.epochs = 50
+        self.d_lr = 1e-2
+        self.g_lr = 1e-2
+        self.beta = 0.9
+        self.inp_feature = 512 * 512
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.smpl_mesh_path = "Test/smpl_pytorch/human.obj"
+
 
 def get_silhoutte(img):
     # Converting the image to grayscale.
@@ -23,7 +34,7 @@ def project_mesh_silhouette(mesh, angle):
         silhouette
     """
 
-    pass
+
 
 
 if __name__ == "__main__":
