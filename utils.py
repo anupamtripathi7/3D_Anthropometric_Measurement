@@ -11,7 +11,13 @@ class Metadata:
         self.inp_feature = 512 * 512
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.smpl_mesh_path = "Test/smpl_pytorch/human.obj"
+        self.raster_settings = RasterizationSettings(
+            image_size=512,
+            blur_radius=0.0,
+            faces_per_pixel=1,
+        )
 
+        self.lights = PointLights(device=device, location=[[0.0, 0.0, -3.0]])
 
 def get_silhoutte(img):
     # Converting the image to grayscale.

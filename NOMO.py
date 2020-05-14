@@ -3,11 +3,17 @@ from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import cv2
 import torch
+import re
 
 
 path = "NOMO_preprocess/data"
 batch_size = 1
 
+numbers = re.compile(r'(\d+)')
+def numericalSort(value):
+    parts = numbers.split(value)
+    parts[1::2] = map(int, parts[1::2])
+    return parts
 
 # class Nomo1(Dataset):
 #
@@ -40,14 +46,28 @@ class Nomo(Dataset):
     def __init__(self, root="NOMO_preprocess/data", gender='female'):
         female_measurements_path = os.path.join(root, 'TC2_' + gender + '_Txt')
         female_projections_path = os.path.join(root, gender)
-        self.images = []
+        images = np.array([[None] * 4] * 708)
+        print(images)
+
         self.content = []
+
         for i, filename in enumerate(os.listdir(female_projections_path)):
-            if i % 4 == 0:
-                human = []
-            human.append(cv2.imread(os.path.join(female_projections_path, filename)))
-            if (i + 1) % 4 == 0:
-                self.images.append(np.array(human))
+            print(filename)
+            if '_'+ str(i) +'_0' in filename:
+                images[i, 0] = cv2.imread(os.path.join(female_projections_path, filename))
+                print(images[i][0].shape)
+            elif '_'+ str(i) +'_90' in filename:
+                images[i, 1] = cv2.imread(os.path.join(female_projections_path, filename))
+                print("a",images[i][0].shape)
+            elif '_'+ str(i) +'_180' in filename:
+                images[i, 2] = cv2.imread(os.path.join(female_projections_path, filename))
+                print("a", images[i][0].shape)
+            elif '_' + str(i) + '_270' in filename:
+                images[i, 3] = cv2.imread(os.path.join(female_projections_path, filename))
+                print("a", images[i][0].shape)
+
+        print(images[0,1])
+        print(self.images[0].shape)
 
         for i, filename in enumerate(os.listdir(female_measurements_path)):
             with open(os.path.join(female_measurements_path,filename)) as f:
