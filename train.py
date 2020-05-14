@@ -13,7 +13,7 @@ from pytorch3d.loss import (
 import numpy as np
 from model import Generator, Discriminator
 import cv2
-from utils import project_mesh
+from utils import project_mesh_silhouette
 
 
 batch_size = 1
@@ -23,6 +23,7 @@ g_lr = 1e-2
 beta = 0.9
 inp_feature = 512*512
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+smpl_mesh_path = "Test/smpl_pytorch/human.obj"
 
 
 def train_discriminator(d, real, generated, optimizer, loss):
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     deform_verts = torch.full(src_mesh.verts_packed().shape, 0.0, device=device, requires_grad=True)
 
     for epoch in range(epochs):
-        project_mesh
+        project_mesh()
         train_discriminator(discriminator, -1, -1, d_optimizer, d_loss)
         # Deform the mesh
         new_src_mesh = src_mesh.offset_verts(deform_verts)

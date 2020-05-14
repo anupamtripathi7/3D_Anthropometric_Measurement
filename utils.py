@@ -13,7 +13,16 @@ def get_silhoutte(img):
     return silhoutte
 
 
-def project_mesh(mesh, angle):
+def project_mesh_silhouette(mesh, angle):
+    """
+    Generate silhouette for projection of mesh at given angle
+    Args:
+        mesh (Mesh): SMPL mesh
+        angle (int): Angle for projection
+
+    Returns:
+        silhouette
+    """
     pass
 
 
