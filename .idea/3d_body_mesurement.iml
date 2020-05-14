@@ -5,7 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/Test/smplpytorch" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Test/smpl_pytorch/smlppytorch" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.7 (body-measurements)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Remote Python 3.8.2 (sftp://anupam@165.124.181.97:22/home/anupam/anaconda3/envs/test_pytorch3D/bin/python3.8)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">
