@@ -3,7 +3,6 @@ import numpy as np
 
 
 def get_silhoutte(img):
-
     # Converting the image to grayscale.
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     silhoutte = cv2.Canny(gray, 100, 500)
@@ -23,6 +22,7 @@ def project_mesh_silhouette(mesh, angle):
     Returns:
         silhouette
     """
+
     pass
 
 
