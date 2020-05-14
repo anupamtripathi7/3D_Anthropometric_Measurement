@@ -57,8 +57,6 @@ class Nomo(Dataset):
                 content = f.read()
             self.content.append(content.replace("MEASURE", "").split("\n")[1:])
 
-
-
     def __len__(self):
         return len(self.content)
 
@@ -70,7 +68,6 @@ class Nomo(Dataset):
         sample = {'images': images, 'content': content}
 
         return sample
-
 
 
 if __name__ == "__main__":

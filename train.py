@@ -1,6 +1,6 @@
 import os
 import torch
-from pytorch3d.io import load_obj, save_obj
+from pytorch3d.io import load_obj, save_obj, load_objs_as_meshes
 from pytorch3d.structures import Meshes
 from pytorch3d.utils import ico_sphere
 from pytorch3d.ops import sample_points_from_meshes
@@ -45,7 +45,7 @@ def train_discriminator(d, real, generated, optimizer, loss):
 
 if __name__ == "__main__":
 
-    src_mesh = load_objs_as_meshes
+    mesh = load_objs_as_meshes([smpl_mesh_path], device=device, load_textures=False)
     discriminator = Discriminator(inp_feature)
     generator = Generator()
 
@@ -60,13 +60,13 @@ if __name__ == "__main__":
 
     # We will learn to deform the source mesh by offsetting its vertices
     # The shape of the deform parameters is equal to the total number of vertices in src_mesh
-    deform_verts = torch.full(src_mesh.verts_packed().shape, 0.0, device=device, requires_grad=True)
+    deform_verts = torch.full(mesh.verts_packed().shape, 0.0, device=device, requires_grad=True)
 
     for epoch in range(epochs):
-        project_mesh()
+        project_mesh_silhouette(mesh, 90)
         train_discriminator(discriminator, -1, -1, d_optimizer, d_loss)
         # Deform the mesh
-        new_src_mesh = src_mesh.offset_verts(deform_verts)
+        new_src_mesh = mesh.offset_verts(deform_verts)
 
         loss = 0
         print('Test Loss =  {}'.format(loss))
