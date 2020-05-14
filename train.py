@@ -14,6 +14,7 @@ import numpy as np
 from model import Generator, Discriminator
 import cv2
 from utils import project_mesh_silhouette
+from NOMO import Nomo
 
 
 batch_size = 1
@@ -24,6 +25,7 @@ beta = 0.9
 inp_feature = 512*512
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 smpl_mesh_path = "Test/smpl_pytorch/human.obj"
+path = "NOMO_preprocess/data"
 
 
 def train_discriminator(d, real, generated, optimizer, loss):
@@ -61,6 +63,9 @@ if __name__ == "__main__":
     # We will learn to deform the source mesh by offsetting its vertices
     # The shape of the deform parameters is equal to the total number of vertices in src_mesh
     deform_verts = torch.full(mesh.verts_packed().shape, 0.0, device=device, requires_grad=True)
+
+    transformed_dataset = Nomo(root=path)
+    dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True)
 
     for epoch in range(epochs):
         project_mesh_silhouette(mesh, 90)
