@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+
 def get_silhoutte(img):
 
     # Converting the image to grayscale.
@@ -11,5 +12,11 @@ def get_silhoutte(img):
     cv2.waitKey(0)
     return silhoutte
 
-img = cv2.imread('human_0_270.jpg')
-get_silhoutte(img)
+
+def project_mesh(mesh, angle):
+    pass
+
+
+if __name__ == "__main__":
+    img = cv2.imread('human_0_270.jpg')
+    get_silhoutte(img)
