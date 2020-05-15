@@ -35,8 +35,8 @@ data = "data/NOMO-3d-400-scans_and_tc2_measurements/nomo-scans(repetitions-remov
 
 if __name__ == '__main__':
     files = []
-    for obj in os.listdir(os.path.join(data, 'male')):
-        files.append(os.path.join(data, 'male', obj))
+    for obj in os.listdir(os.path.join(data, 'female')):
+        files.append(os.path.join(data, 'female', obj))
     meshes = load_objs_as_meshes(files, device=device)
     # meshes = join_meshes_as_batch([meshes, load_data(os.path.join(data, 'male'))])
     batch_verts = meshes.verts_list()
@@ -89,6 +89,6 @@ if __name__ == '__main__':
 
             mesh_n = str(int(file[-8: -4]))
 
-            cv2.imwrite(os.path.join('NOMO_preprocess/data/processed_data/male', 'human_{}_{}.jpg'.format(str(mesh_n), str(j))), image)
+            cv2.imwrite(os.path.join('data/processed_data/female', 'human_{}_{}.jpg'.format(str(mesh_n), str(j))), image)
     # print(len(mesh))
 
