@@ -25,6 +25,7 @@ class Metadata:
         self.inp_feature = 512 * 512
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.smpl_mesh_path = "Test/smpl_pytorch/human.obj"
+        self.path = "NOMO_preprocess/data"
         self.raster_settings = RasterizationSettings(
             image_size=512,
             blur_radius=0.0,

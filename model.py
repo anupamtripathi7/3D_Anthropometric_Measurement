@@ -4,8 +4,9 @@ import torch.nn.functional as F
 from tqdm import tqdm
 from NOMO import Nomo
 from torch.utils.data import DataLoader
-from utils import project_mesh_silhouette
+from utils import project_mesh_silhouette, Metadata
 from pytorch3d.io import load_obj, save_obj, load_objs_as_meshes
+import os
 import random
 
 
@@ -97,9 +98,13 @@ counter = []
 loss_history = []
 iteration_number= 0
 
-meshes_male = [load_objs_as_meshes([smpl_mesh_path], device=device, load_textures=False)] * num_males
-meshes_female = [load_objs_as_meshes([smpl_mesh_path], device=device, load_textures=False)] * num_females
-mesh = {'male': meshes_male, 'female': meshes_female}
+meta = Metadata()
+
+mesh_male = [load_objs_as_meshes([os.path.join(meta.path, 'male.obj')], device=meta.device, load_textures=False)
+                 for _ in range(meta.n_males)]
+mesh_female = [load_objs_as_meshes([os.path.join(meta.path, 'female.obj')], device=meta.device, load_textures=False)
+                   for _ in range(meta.n_females)]
+mesh = {'male': mesh_male, 'female': mesh_female}
 
 
 
