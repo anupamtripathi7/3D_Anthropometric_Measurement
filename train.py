@@ -51,8 +51,10 @@ def train_discriminator(d, projection, real, generated, optimizer, loss):
 if __name__ == "__main__":
 
     meta = Metadata()
-    mesh_male = load_objs_as_meshes([os.path.join(meta.path, 'male')], device=meta.device, load_textures=False)
-    mesh_female = load_objs_as_meshes([os.path.join(meta.path, 'female')], device=meta.device, load_textures=False)
+    mesh_male = [load_objs_as_meshes([os.path.join(meta.path, 'male')], device=meta.device, load_textures=False)
+                 for _ in range(meta.n_males)]
+    mesh_female = [load_objs_as_meshes([os.path.join(meta.path, 'female')], device=meta.device, load_textures=False)
+                   for _ in range(meta.n_females)]
     mesh = {'male': mesh_male, 'female': mesh_female}
 
     discriminator = Discriminator(meta.inp_feature)
@@ -69,17 +71,17 @@ if __name__ == "__main__":
     dataloader = DataLoader(transformed_dataset, batch_size=meta.batch_size, shuffle=True)
 
     for epoch in range(meta.epochs):
-        for sample in tqdm(dataloader):
+        for i, sample in enumerate(tqdm(dataloader)):
             for n, angle in enumerate([0, 90, 180, 270]):
-                projection = project_mesh_silhouette(mesh[sample['gender']], angle)
+                projection = project_mesh_silhouette(mesh[sample['gender']][i], angle)
                 real_angle = angle + random.randint(-5, 5)
-                real = project_mesh_silhouette(mesh[sample['gender']], real_angle)
+                real = project_mesh_silhouette(mesh[sample['gender']][i], real_angle)
                 inp = sample['images'][n]
                 train_discriminator(discriminator, projection, real, inp, d_optimizer, d_loss)
 
                 loss = discriminator(projection, inp)
                 loss.backwards()
                 g_optimizer.step()
-                mesh[sample['gender']] = mesh[sample['gender']].offset_verts(deform_verts)
+                mesh[sample['gender']][i] = mesh[sample['gender']][i].offset_verts(deform_verts)
 
                 print('Test Loss =  {}'.format(loss))

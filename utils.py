@@ -30,7 +30,8 @@ class Metadata:
             blur_radius=0.0,
             faces_per_pixel=1,
         )
-
+        self.n_males = 179
+        self.n_females = 177
         self.lights = PointLights(device=self.device, location=[[0.0, 0.0, -3.0]])
 
 
