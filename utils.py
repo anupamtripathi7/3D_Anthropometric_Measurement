@@ -33,10 +33,10 @@ class Metadata:
 
         self.lights = PointLights(device=self.device, location=[[0.0, 0.0, -3.0]])
 
+
 def get_silhoutte(img):
     # Converting the image to grayscale.
     pass
-
 
 
 def project_mesh_silhouette(mesh, angle):
@@ -49,11 +49,11 @@ def project_mesh_silhouette(mesh, angle):
     Returns:
         silhouette
     """
-
+    m = Metadata()
     R, T = look_at_view_transform(1.5, 0, angle, up=((0, 1, 0),), at=((0, 0.75, 0),))
     cameras = OpenGLPerspectiveCameras(device=m.device, R=R, T=T)
     raster_settings = m.raster_settings
-    lights = m.PointLights
+    lights = m.lights
     renderer = MeshRenderer(
         rasterizer=MeshRasterizer(
             cameras=cameras,
@@ -61,7 +61,7 @@ def project_mesh_silhouette(mesh, angle):
         ),
         shader=HardFlatShader(device=m.device, lights=lights)
     )
-    verts_rgb = torch.ones_like(verts)[None]  # (1, V, 3)
+    verts_rgb = torch.ones((len(mesh.verts_list()), 1))[None]  # (1, V, 3)
     textures = Textures(verts_rgb=verts_rgb.to(m.device))
 
     mesh.textures = textures

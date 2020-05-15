@@ -25,6 +25,7 @@ class Nomo(Dataset):
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
+        print(self.data[idx]['images'])
         images = torch.tensor(self.data[idx]['images'])
         measurements = self.data[idx]['measurements']
         gender = self.data[idx]['gender']
@@ -44,6 +45,8 @@ class Nomo(Dataset):
             for angle in [0, 90, 180, 270]:
                 img = cv2.imread(
                     os.path.join(projections_path, gender, 'human_{}_{}.jpg'.format(str(file_n), str(angle))))
+                if img == None:
+                    print(img, txt)
                 images.append(img)
             images = np.array(images)
             data.append({'images': images, 'measurements': lines, 'gender': gender})
