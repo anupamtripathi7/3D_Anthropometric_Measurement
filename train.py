@@ -52,9 +52,9 @@ if __name__ == "__main__":
 
     meta = Metadata()
     mesh_male = [load_objs_as_meshes([os.path.join(meta.path, 'male')], device=meta.device, load_textures=False)
-                 for _ in meta.n_males]
+                 for _ in range(meta.n_males)]
     mesh_female = [load_objs_as_meshes([os.path.join(meta.path, 'female')], device=meta.device, load_textures=False)
-                   for _ in meta.n_females]
+                   for _ in range(meta.n_females)]
     mesh = {'male': mesh_male, 'female': mesh_female}
 
     discriminator = Discriminator(meta.inp_feature)
