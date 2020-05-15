@@ -84,6 +84,6 @@ if __name__ == '__main__':
             image = cv2.normalize(image, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
             image.astype(np.uint8)
 
-            cv2.imwrite(os.path.join('data/processed_data/Male2', 'human_{}_{}.jpg'.format(str(i), str(j))), image)
+            cv2.imwrite(os.path.join('NOMO_preprocess/data/processed_data/male', 'human_{}_{}.jpg'.format(str(i), str(j))), image)
     # print(len(mesh))
 

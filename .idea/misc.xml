@@ -3,5 +3,5 @@
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.7 (3d_body_mesurement)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 3.8.2 (sftp://anupam@165.124.181.97:22/home/anupam/anaconda3/envs/test_pytorch3D/bin/python3.8)" project-jdk-type="Python SDK" />
 </project>

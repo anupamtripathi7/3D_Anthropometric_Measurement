@@ -86,10 +86,10 @@ class ContrastiveLoss(torch.nn.Module):
 epochs = 2
 batch_size = 1
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-smpl_mesh_path = "Test/smpl_pytorch/human.obj"
+smpl_mesh_path = "data/male.obj"
 path = "NOMO_preprocess/data"
 
-model = Discriminator().cuda()
+model = Discriminator()
 criterion = ContrastiveLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
 
@@ -107,9 +107,9 @@ dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True
 for epoch in range(epochs):
     for i, sample in enumerate(tqdm(dataloader)):
         for n, angle in enumerate([0, 90, 180, 270]):
-            projection = project_mesh_silhouette(mesh[sample['gender']], angle)
+            projection = project_mesh_silhouette(mesh[sample['gender'][0]], angle)
             real_angle = angle + random.randint(-5, 5)
-            real = project_mesh_silhouette(mesh[sample['gender']], real_angle)
+            real = project_mesh_silhouette(mesh[sample['gender'][0]], real_angle)
             fake = sample['images'][n]
             # img0, img1, label = data
             # img0, img1, label = Variable(img0).cuda(), Variable(img1).cuda() , Variable(label).cuda()
