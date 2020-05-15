@@ -33,6 +33,7 @@ class Metadata:
 
         self.lights = PointLights(device=self.device, location=[[0.0, 0.0, -3.0]])
 
+
 def get_silhoutte(img):
     # Converting the image to grayscale.
     pass
