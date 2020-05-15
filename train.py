@@ -31,7 +31,7 @@ smpl_mesh_path = "Test/smpl_pytorch/human.obj"
 path = "NOMO_preprocess/data"
 
 
-def train_discriminator(d, real, generated, optimizer, loss):
+def train_discriminator(d, projection, real, generated, optimizer, loss):
     optimizer.zero_grad()
 
     # train on real images
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     d_loss = torch.nn.BCELoss()
 
-    # deform_verts = torch.full(mesh.verts_packed().shape, 0.0, device=device, requires_grad=True)
+    deform_verts = torch.full(mesh.verts_packed().shape, 0.0, device=device, requires_grad=True)
 
     transformed_dataset = Nomo(folder=path)
     dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True)
@@ -73,10 +73,12 @@ if __name__ == "__main__":
                 projection = project_mesh_silhouette(mesh[sample['gender']], angle)
                 real_angle = angle + random.randint(-5, 5)
                 real = project_mesh_silhouette(mesh[sample['gender']], real_angle)
-                fake = sample['images'][n]
-                train_discriminator(discriminator, -1, -1, d_optimizer, d_loss)
-                # Deform the mesh
-                # new_src_mesh = mesh.offset_verts(deform_verts)
+                inp = sample['images'][n]
+                train_discriminator(discriminator, projection, real, inp, d_optimizer, d_loss)
 
-                loss = 0
+                loss = discriminator(projection, inp)
+                loss.backwards()
+                g_optimizer.step()
+                mesh[sample['gender']] = mesh[sample['gender']].offset_verts(deform_verts)
+
                 print('Test Loss =  {}'.format(loss))
