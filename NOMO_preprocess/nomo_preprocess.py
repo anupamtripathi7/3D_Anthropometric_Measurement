@@ -3,6 +3,7 @@ import torch
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
+from pytorch3d.io import load_obj, save_obj, load_objs_as_meshes
 from tqdm import tqdm
 from pytorch3d.structures import join_meshes_as_batch, Meshes, Textures
 from NOMO_preprocess.utils import load_data
@@ -33,7 +34,10 @@ data = "data/NOMO-3d-400-scans_and_tc2_measurements/nomo-scans(repetitions-remov
 #
 
 if __name__ == '__main__':
-    meshes = load_data(os.path.join(data, 'male'), device=device)
+    files = []
+    for obj in os.listdir(os.path.join(data, 'male')):
+        files.append(os.path.join(data, 'male', obj))
+    meshes = load_objs_as_meshes(files, device=device)
     # meshes = join_meshes_as_batch([meshes, load_data(os.path.join(data, 'male'))])
     batch_verts = meshes.verts_list()
     batch_faces = meshes.faces_list()
@@ -64,7 +68,7 @@ if __name__ == '__main__':
 
     # print(renderers)
 
-    for i, mesh in enumerate(tqdm(meshes)):
+    for i, (mesh, file) in enumerate(tqdm(zip(meshes, files))):
         for j in [0, 90, 180, 270]:
 
             verts = mesh.verts_list()[0]
@@ -72,7 +76,6 @@ if __name__ == '__main__':
 
             verts_rgb = torch.ones_like(verts)[None]  # (1, V, 3)
             textures = Textures(verts_rgb=verts_rgb.to(device))
-
 
             mesh.textures = textures
             mesh.textures._num_faces_per_mesh = mesh._num_faces_per_mesh.tolist()
@@ -84,6 +87,8 @@ if __name__ == '__main__':
             image = cv2.normalize(image, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
             image.astype(np.uint8)
 
-            cv2.imwrite(os.path.join('NOMO_preprocess/data/processed_data/male', 'human_{}_{}.jpg'.format(str(i), str(j))), image)
+            mesh_n = str(int(file[-8: -4]))
+
+            cv2.imwrite(os.path.join('NOMO_preprocess/data/processed_data/male', 'human_{}_{}.jpg'.format(str(mesh_n), str(j))), image)
     # print(len(mesh))
 
