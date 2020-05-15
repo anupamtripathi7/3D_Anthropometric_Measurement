@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     # deform_verts = torch.full(mesh.verts_packed().shape, 0.0, device=device, requires_grad=True)
 
-    transformed_dataset = Nomo(root=path)
+    transformed_dataset = Nomo(folder=path)
     dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True)
 
     for epoch in range(epochs):
