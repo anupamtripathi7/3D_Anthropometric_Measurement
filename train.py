@@ -17,6 +17,7 @@ from utils import project_mesh_silhouette
 from NOMO import Nomo
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+import random
 
 
 batch_size = 1
@@ -68,8 +69,11 @@ if __name__ == "__main__":
 
     for epoch in range(epochs):
         for sample in tqdm(dataloader):
-            for angle in [0, 90, 180, 270]:
+            for n, angle in enumerate([0, 90, 180, 270]):
                 projection = project_mesh_silhouette(mesh[sample['gender']], angle)
+                real_angle = angle + random.randint(-5, 5)
+                real = project_mesh_silhouette(mesh[sample['gender']], real_angle)
+                fake = sample['images'][n]
                 train_discriminator(discriminator, -1, -1, d_optimizer, d_loss)
                 # Deform the mesh
                 # new_src_mesh = mesh.offset_verts(deform_verts)
