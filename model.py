@@ -85,6 +85,8 @@ class ContrastiveLoss(torch.nn.Module):
 
 epochs = 2
 batch_size = 1
+num_males = 179
+num_females = 177
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 smpl_mesh_path = "data/male.obj"
 path = "NOMO_preprocess/data"
@@ -97,9 +99,12 @@ counter = []
 loss_history = []
 iteration_number= 0
 
-mesh_male = load_objs_as_meshes([smpl_mesh_path], device=device, load_textures=False)
-mesh_female = load_objs_as_meshes([smpl_mesh_path], device=device, load_textures=False)
-mesh = {'male': mesh_male, 'female': mesh_female}
+meshes_male = [load_objs_as_meshes([smpl_mesh_path], device=device, load_textures=False)] * num_males
+meshes_female = [load_objs_as_meshes([smpl_mesh_path], device=device, load_textures=False)] * num_females
+mesh = {'male': meshes_male, 'female': meshes_female}
+
+
+
 
 transformed_dataset = Nomo(folder=path)
 dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True)
@@ -107,6 +112,7 @@ dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True
 for epoch in range(epochs):
     for i, sample in enumerate(tqdm(dataloader)):
         for n, angle in enumerate([0, 90, 180, 270]):
+            optimizer.zero_grad()
             projection = project_mesh_silhouette(mesh[sample['gender'][0]], angle)
             real_angle = angle + random.randint(-5, 5)
             real = project_mesh_silhouette(mesh[sample['gender'][0]], real_angle)
@@ -115,7 +121,7 @@ for epoch in range(epochs):
             # img0, img1, label = Variable(img0).cuda(), Variable(img1).cuda() , Variable(label).cuda()
             output1, output2 = model(projection, real)
             output3, output4 = model(projection, fake)
-            optimizer.zero_grad()
+
             loss_contrastive_pos = criterion(output1, output2, 0)
             loss_contrastive_neg = criterion(output3, output4, 1)
             loss_contrastive = loss_contrastive_neg + loss_contrastive_pos
