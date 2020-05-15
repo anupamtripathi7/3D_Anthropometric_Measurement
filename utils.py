@@ -35,6 +35,7 @@ class Metadata:
 
 def get_silhoutte(img):
     # Converting the image to grayscale.
+    pass
 
 
 
