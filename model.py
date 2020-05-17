@@ -78,66 +78,64 @@ class ContrastiveLoss(torch.nn.Module):
         return loss_contrastive
 
 
-epochs = 2
-batch_size = 1
-num_males = 179
-num_females = 177
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-smpl_mesh_path = "data/male.obj"
-path = "NOMO_preprocess/data"
+if __name__ == "__main__":
+    epochs = 2
+    batch_size = 1
+    num_males = 179
+    num_females = 177
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    smpl_mesh_path = "data/male.obj"
+    path = "NOMO_preprocess/data"
 
-model = Discriminator()
-criterion = ContrastiveLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
+    model = Discriminator()
+    criterion = ContrastiveLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
 
-counter = []
-loss_history = []
-iteration_number= 0
+    counter = []
+    loss_history = []
+    iteration_number= 0
 
-meta = Metadata()
+    meta = Metadata()
 
-mesh_male = [load_objs_as_meshes([os.path.join(meta.path, 'male.obj')], device=meta.device, load_textures=False)] * meta.n_males
-# print(mesh_male)
-mesh_female = [load_objs_as_meshes([os.path.join(meta.path, 'female.obj')], device=meta.device, load_textures=False)] * meta.n_females
-mesh = {'male': mesh_male, 'female': mesh_female}
-# pint(mesh['male'][0])
+    mesh_male = [load_objs_as_meshes([os.path.join(meta.path, 'male.obj')], device=meta.device, load_textures=False)] * meta.n_males
+    # print(mesh_male)
+    mesh_female = [load_objs_as_meshes([os.path.join(meta.path, 'female.obj')], device=meta.device, load_textures=False)] * meta.n_females
+    mesh = {'male': mesh_male, 'female': mesh_female}
+    # pint(mesh['male'][0])
 
+    transformed_dataset = Nomo(folder=path)
+    dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True)
 
+    for epoch in range(epochs):
+        for i, sample in enumerate(tqdm(dataloader)):
+            for n, angle in enumerate([90, 0, 180, 270]):
+                # print(n)
+                optimizer.zero_grad()
+                projection = project_mesh_silhouette(mesh[sample['gender'][0]][i], angle)
+                real_angle = angle + random.randint(-5, 5)
+                real = project_mesh_silhouette(mesh[sample['gender'][0]][i], real_angle)
+                fake = sample['images'][0][n].unsqueeze(0).unsqueeze(0)
+                print("here")
+                print(projection.size())
+                print(real.size())
+                print(fake.size())
 
+                # print("b",fake.size())
+                # img0, img1, label = data
+                # img0, img1, label = Variable(img0).cuda(), Variable(img1).cuda() , Variable(label).cuda()
+                output1, output2 = model(projection, real)
 
-transformed_dataset = Nomo(folder=path)
-dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True)
-
-for epoch in range(epochs):
-    for i, sample in enumerate(tqdm(dataloader)):
-        for n, angle in enumerate([90, 0, 180, 270]):
-            # print(n)
-            optimizer.zero_grad()
-            projection = project_mesh_silhouette(mesh[sample['gender'][0]][i], angle)
-            real_angle = angle + random.randint(-5, 5)
-            real = project_mesh_silhouette(mesh[sample['gender'][0]][i], real_angle)
-            fake = sample['images'][0][n].unsqueeze(0).unsqueeze(0)
-            print("here")
-            print(projection.size())
-            print(real.size())
-            print(fake.size())
-
-            # print("b",fake.size())
-            # img0, img1, label = data
-            # img0, img1, label = Variable(img0).cuda(), Variable(img1).cuda() , Variable(label).cuda()
-            output1, output2 = model(projection, real)
-
-            loss_contrastive_pos = criterion(output1, output2, 0)
-            print(loss_contrastive_pos)
-            output3, output4 = model(projection, fake)
-            loss_contrastive_neg = criterion(output3, output4, 1)
-            print(loss_contrastive_neg)
-            loss_contrastive = loss_contrastive_neg + loss_contrastive_pos
-            loss_contrastive.backward()
-            optimizer.step()
-            if i % 10 == 0 :
-                print("Epoch number {}\n Current loss {}\n".format(epoch,loss_contrastive))
-                # iteration_number +=10
-                # counter.append(iteration_number)
-                # loss_history.append(loss_contrastive.data[0])
-# show_plot(counter,loss_history)
+                loss_contrastive_pos = criterion(output1, output2, 0)
+                print(loss_contrastive_pos)
+                output3, output4 = model(projection, fake)
+                loss_contrastive_neg = criterion(output3, output4, 1)
+                print(loss_contrastive_neg)
+                loss_contrastive = loss_contrastive_neg + loss_contrastive_pos
+                loss_contrastive.backward()
+                optimizer.step()
+                if i % 10 == 0 :
+                    print("Epoch number {}\n Current loss {}\n".format(epoch,loss_contrastive))
+                    # iteration_number +=10
+                    # counter.append(iteration_number)
+                    # loss_history.append(loss_contrastive.data[0])
+    # show_plot(counter,loss_history)

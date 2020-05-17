@@ -14,7 +14,7 @@ if __name__ == '__main__':
     # Create the SMPL layer
     smpl_layer = SMPL_Layer(
         center_idx=0,
-        gender='female',
+        gender='male',
         model_root='/Users/anupamtripathi/PycharmProjects/3d_body_mesurement/Test/smpl_pytorch/smlppytorch/native/models')
 
     # Generate random pose and shape parameters
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         savepath='image.png',
         show=True)
     print(verts.cpu().detach().size())
-    save_obj('female.obj', verts.cpu().detach()[0], smpl_layer.th_faces)
+    save_obj('male.obj', verts.cpu().detach()[0], smpl_layer.th_faces)
 
 
 # img = cv2.imread('/Users/anupamtripathi/PycharmProjects/3d_body_mesurement/Test/smplpytorch/image.png')
