@@ -44,7 +44,7 @@ def find_adj_list(verts, faces):
 
 if __name__ == "__main__":
 
-    verts, faces, _ = load_obj('Test/smpl_pytorch/human.obj')
+    verts, faces, _ = load_obj('data/male.obj')
     adj_list = find_adj_list(verts, faces.verts_idx)
     # print(verts.size())
     # print(faces_idx)

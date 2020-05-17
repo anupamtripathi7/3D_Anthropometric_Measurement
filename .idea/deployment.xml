@@ -2,10 +2,24 @@
 <project version="4">
   <component name="PublishConfigData" autoUpload="Always" serverName="anupam@165.124.181.97:22">
     <serverData>
-      <paths name="anupam@165.124.181.97:22">
+      <paths name="anupamtripathi@10.0.0.104:22">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/anupam/git" local="$PROJECT_DIR$" />
+            <mapping deploy="/tmp/pycharm_project_275" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="nraut@wcdl2.deeplearninglab.northwestern.edu:22">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="nraut@wcdl2.deeplearninglab.northwestern.edu:22 agent">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
