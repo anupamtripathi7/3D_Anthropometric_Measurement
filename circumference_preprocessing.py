@@ -51,12 +51,11 @@ if __name__ == "__main__":
     # print(verts.size())
     # print(faces_idx)
 
-
         # print(idx, face, [(x, adj_list[x]) for x in range(0, 6)])
 
     # print('a')
     # print('b',adj_list)
-    print(len(adj_list), faces.shape)
-    print(adj_list)
+    # print(len(adj_list), faces.shape)
+    # print(adj_list)
     # print(adj_list[adj_list.keys()[1]])
 
