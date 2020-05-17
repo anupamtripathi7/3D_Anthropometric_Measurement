@@ -5,14 +5,13 @@
       <sourceFolder url="file://$MODULE_DIR$/Test/smplpytorch" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Test/smpl_pytorch/smlppytorch" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="Remote Python 3.7.7 (sftp://anupamtripathi@10.0.0.104:22/Users/anupamtripathi/opt/anaconda3/envs/3d_body_mesurement/bin/python3.7)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.7 (3d_body_mesurement)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">
     <option name="requirementsPath" value="" />
   </component>
   <component name="PyDocumentationSettings">
-    <option name="format" value="GOOGLE" />
     <option name="myDocStringFormat" value="Google" />
   </component>
 </module>
