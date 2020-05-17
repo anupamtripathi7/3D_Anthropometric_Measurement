@@ -126,10 +126,8 @@ if __name__ == "__main__":
                 output1, output2 = model(projection, real)
 
                 loss_contrastive_pos = criterion(output1, output2, 0)
-                print(loss_contrastive_pos)
                 output3, output4 = model(projection, fake)
                 loss_contrastive_neg = criterion(output3, output4, 1)
-                print(loss_contrastive_neg)
                 loss_contrastive = loss_contrastive_neg + loss_contrastive_pos
                 loss_contrastive.backward()
                 optimizer.step()
