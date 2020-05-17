@@ -109,26 +109,26 @@ if __name__ == "__main__":
     faces = faces_idx.verts_idx
 
     print(verts.size())
-
     verts_rgb = torch.ones_like(verts)[None]  # (1, V, 3)
-    for x in range(6370,6371):
-        verts_rgb[0, x] = torch.tensor([1., 0., 0.])
+
+    # for x in range(4370,4371):
+    #     verts_rgb[0, x] = torch.tensor([1., 0., 0.])
 
     for n, v in enumerate(verts):
-        if v[1] >= 0.081 and v[1] <= 0.085:
+        print(v)
+        if v[1] >= 0.031 and v[1] <= 0.035:
             verts_rgb[0, n] = torch.tensor([1., 0., 0.])
             print(n)
-
-    verts_rgb[0, 3000] = torch.tensor([1., 0., 0.])
-    verts_rgb[0, 4000] = torch.tensor([1., 0., 0.])
-    verts_rgb[0, 5000] = torch.tensor([1., 0., 0.])
-
-    print(verts[6370])
-    verts_rgb[0, 4167] = torch.tensor([1., 0., 0.])
+    #
+    #
+    # verts_rgb[0, 4167] = torch.tensor([1., 0., 0.])
     # 679 and 4167
     print('Starting find_adj_list()')
     adj_list = find_adj_list(verts, faces)
-    path = astar(adj_list, 1784, 679, verts)
+    path1 = astar(adj_list, 1784, 679, verts)
+    path2 = astar(adj_list, 679, 4167, verts)
+    path3 = astar(adj_list, 4167, 1784, verts)
+    path = path1 + path2 + path3
     print(path)
 
     # 1784, 679, 4167
@@ -136,6 +136,8 @@ if __name__ == "__main__":
     # [1784, 5246, 5244, 6388, 6389, 4373, 4330, 4331, 4316, 4317, 4332, 4425, 4921, 4166, 4167]
     # [1784, 1781, 1780, 3122, 2928, 886, 845, 844, 831, 830, 846, 939, 1449, 678, 679]
 
+    # for point in path:
+    #     verts_rgb[0, point] = torch.tensor([1., 0., 0.])
 
     textures = Textures(verts_rgb=verts_rgb.to(device))
 
