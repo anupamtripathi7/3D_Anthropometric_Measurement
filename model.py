@@ -24,19 +24,16 @@ class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
         self.cnn1 = nn.Sequential(
-            nn.ReflectionPad2d(1),
             nn.Conv2d(1, 4, kernel_size=3),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(4),
             nn.Dropout2d(p=.2),
 
-            nn.ReflectionPad2d(1),
             nn.Conv2d(4, 8, kernel_size=3),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(8),
             nn.Dropout2d(p=.2),
 
-            nn.ReflectionPad2d(1),
             nn.Conv2d(8, 8, kernel_size=3),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(8),
@@ -44,22 +41,21 @@ class Discriminator(nn.Module):
         )
 
         self.fc1 = nn.Sequential(
-            nn.Linear(8 * 100 * 100, 500),
+            nn.Linear(8 * 506 * 506, 500),
             nn.ReLU(inplace=True),
-
             nn.Linear(500, 500),
             nn.ReLU(inplace=True),
-
             nn.Linear(500, 5)
         )
 
     def forward_pass(self, x):
-        output = self.cnn1(x)
+        output = self.cnn1(x.float())
         output = output.view(output.size()[0], -1)
         output = self.fc1(output)
         return output
 
     def forward(self, input1, input2):
+        print(input1.size(), input2.size())
         output1 = self.forward_pass(input1)
         output2 = self.forward_pass(input2)
         return output1, output2
@@ -100,11 +96,11 @@ iteration_number= 0
 
 meta = Metadata()
 
-mesh_male = [load_objs_as_meshes([os.path.join(meta.path, 'male.obj')], device=meta.device, load_textures=False)
-                 for _ in range(meta.n_males)]
-mesh_female = [load_objs_as_meshes([os.path.join(meta.path, 'female.obj')], device=meta.device, load_textures=False)
-                   for _ in range(meta.n_females)]
+mesh_male = [load_objs_as_meshes([os.path.join(meta.path, 'male.obj')], device=meta.device, load_textures=False)] * meta.n_males
+# print(mesh_male)
+mesh_female = [load_objs_as_meshes([os.path.join(meta.path, 'female.obj')], device=meta.device, load_textures=False)] * meta.n_females
 mesh = {'male': mesh_male, 'female': mesh_female}
+# pint(mesh['male'][0])
 
 
 
@@ -114,25 +110,34 @@ dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True
 
 for epoch in range(epochs):
     for i, sample in enumerate(tqdm(dataloader)):
-        for n, angle in enumerate([0, 90, 180, 270]):
+        for n, angle in enumerate([90, 0, 180, 270]):
+            # print(n)
             optimizer.zero_grad()
-            projection = project_mesh_silhouette(mesh[sample['gender'][0]], angle)
+            projection = project_mesh_silhouette(mesh[sample['gender'][0]][i], angle)
             real_angle = angle + random.randint(-5, 5)
-            real = project_mesh_silhouette(mesh[sample['gender'][0]], real_angle)
-            fake = sample['images'][n]
+            real = project_mesh_silhouette(mesh[sample['gender'][0]][i], real_angle)
+            fake = sample['images'][0][n].unsqueeze(0).unsqueeze(0)
+            print("here")
+            print(projection.size())
+            print(real.size())
+            print(fake.size())
+
+            # print("b",fake.size())
             # img0, img1, label = data
             # img0, img1, label = Variable(img0).cuda(), Variable(img1).cuda() , Variable(label).cuda()
             output1, output2 = model(projection, real)
-            output3, output4 = model(projection, fake)
 
             loss_contrastive_pos = criterion(output1, output2, 0)
+            print(loss_contrastive_pos)
+            output3, output4 = model(projection, fake)
             loss_contrastive_neg = criterion(output3, output4, 1)
+            print(loss_contrastive_neg)
             loss_contrastive = loss_contrastive_neg + loss_contrastive_pos
             loss_contrastive.backward()
             optimizer.step()
             if i % 10 == 0 :
-                print("Epoch number {}\n Current loss {}\n".format(epoch,loss_contrastive.data[0]))
-                iteration_number +=10
-                counter.append(iteration_number)
-                loss_history.append(loss_contrastive.data[0])
+                print("Epoch number {}\n Current loss {}\n".format(epoch,loss_contrastive))
+                # iteration_number +=10
+                # counter.append(iteration_number)
+                # loss_history.append(loss_contrastive.data[0])
 # show_plot(counter,loss_history)

@@ -51,10 +51,9 @@ def train_discriminator(d, projection, real, generated, optimizer, loss):
 if __name__ == "__main__":
 
     meta = Metadata()
-    mesh_male = [load_objs_as_meshes([os.path.join(meta.path, 'male.obj')], device=meta.device, load_textures=False)
-                 for _ in range(meta.n_males)]
-    mesh_female = [load_objs_as_meshes([os.path.join(meta.path, 'female.obj')], device=meta.device, load_textures=False)
-                   for _ in range(meta.n_females)]
+    mesh_male = [load_objs_as_meshes([os.path.join(meta.path, 'male.obj')], device=meta.device, load_textures=False)] * meta.n_males
+    print(mesh_male)
+    mesh_female = [load_objs_as_meshes([os.path.join(meta.path, 'female.obj')], device=meta.device, load_textures=False)] * meta.n_females
     mesh = {'male': mesh_male, 'female': mesh_female}
 
     discriminator = Discriminator(meta.inp_feature)
@@ -67,12 +66,16 @@ if __name__ == "__main__":
 
     deform_verts = torch.full(mesh.verts_packed().shape, 0.0, device=meta.device, requires_grad=True)
 
+    print('loading data....')
     transformed_dataset = Nomo(folder=meta.path)
     dataloader = DataLoader(transformed_dataset, batch_size=meta.batch_size, shuffle=True)
+    print('doned')
 
     for epoch in range(meta.epochs):
         for i, sample in enumerate(tqdm(dataloader)):
+            print('in loop')
             for n, angle in enumerate([0, 90, 180, 270]):
+                print()
                 projection = project_mesh_silhouette(mesh[sample['gender']][i], angle)
                 real_angle = angle + random.randint(-5, 5)
                 real = project_mesh_silhouette(mesh[sample['gender']][i], real_angle)

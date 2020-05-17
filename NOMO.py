@@ -25,7 +25,7 @@ class Nomo(Dataset):
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
-        print(self.data[idx]['images'])
+
         images = torch.tensor(self.data[idx]['images'])
         measurements = self.data[idx]['measurements']
         gender = self.data[idx]['gender']
@@ -44,9 +44,8 @@ class Nomo(Dataset):
             images = []
             for angle in [0, 90, 180, 270]:
                 img = cv2.imread(
-                    os.path.join(projections_path, gender, 'human_{}_{}.jpg'.format(str(file_n), str(angle))))
-                if img == None:
-                    print(img, txt)
+                    os.path.join(projections_path, gender, 'human_{}_{}.jpg'.format(str(file_n), str(angle))), 0)
+
                 images.append(img)
             images = np.array(images)
             data.append({'images': images, 'measurements': lines, 'gender': gender})
@@ -55,13 +54,13 @@ class Nomo(Dataset):
         return np.array(data)
 
 
-if __name__ == "__main__":
-
-    transformed_dataset = Nomo(path)
-
-    dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True)
-
-    for i, sample_1 in enumerate(dataloader):
-        print(sample_1['images'].size())
-        print(sample_1['measurements'])
-        print(sample_1['gender'])
+# if __name__ == "__main__":
+#
+#     transformed_dataset = Nomo(path)
+#
+#     dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True)
+#
+#     for i, sample_1 in enumerate(dataloader):
+#         print(sample_1['images'].size())
+#         print(sample_1['measurements'])
+#         print(sample_1['gender'])

@@ -51,8 +51,9 @@ def project_mesh_silhouette(mesh, angle):
     Returns:
         silhouette
     """
+    # print(mesh.verts_list()[0].size())
     m = Metadata()
-    R, T = look_at_view_transform(1.5, 0, angle, up=((0, 1, 0),), at=((0, 0.75, 0),))
+    R, T = look_at_view_transform(2, 0, angle, up=((0, 1, 0),), at=((0, 0, 0),))
     cameras = OpenGLPerspectiveCameras(device=m.device, R=R, T=T)
     raster_settings = m.raster_settings
     lights = m.lights
@@ -63,30 +64,33 @@ def project_mesh_silhouette(mesh, angle):
         ),
         shader=HardFlatShader(device=m.device, lights=lights)
     )
-    verts_rgb = torch.ones((len(mesh.verts_list()), 1))[None]  # (1, V, 3)
+    verts = mesh.verts_list()[0]
+
+    # faces = meshes.faces_list()[0]
+
+    verts_rgb = torch.ones_like(verts)[None]  # (1, V, 3)
+    # verts_rgb = torch.ones((len(mesh.verts_list()[0]), 1))[None]  # (1, V, 3)
     textures = Textures(verts_rgb=verts_rgb.to(m.device))
 
     mesh.textures = textures
     mesh.textures._num_faces_per_mesh = mesh._num_faces_per_mesh.tolist()
     mesh.textures._num_verts_per_mesh = mesh._num_verts_per_mesh.tolist()
 
+
+
     image = renderer(mesh)
-    image_cpy = image.clone()
-
-    image_cpy = image.detach().cpu().numpy()[0, :, :, :-1]
-    image_cpy = cv2.normalize(image_cpy, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
-    image_cpy.astype(np.uint8)
-
-
+    silhoutte = image.clone()
+    silhoutte = silhoutte.detach().cpu().numpy()[0, :, :, :-1]
+    image_cpy = cv2.normalize(silhoutte, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
     silhoutte = cv2.Canny(image_cpy, 100, 500)
-    cv2.imshow('Frame', silhoutte)
-    cv2.waitKey(0)
+    # cv2.imshow('Frame', silhoutte)
+    # cv2.waitKey(0)
     # Display the resulting frame
     silhoutte = torch.Tensor(silhoutte)
-    image[:,:,:] = silhoutte[:,:,:]
+    image[0,:,:,0] = torch.tensor(silhoutte)
+    image = image[:, : , : ,:-3].permute(0,3,1,2)
 
-
-    return silhoutte
+    return image
 
 if __name__ == "__main__":
     m = Metadata
