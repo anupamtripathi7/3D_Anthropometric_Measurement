@@ -106,6 +106,7 @@ if __name__ == "__main__":
     dataloader = DataLoader(transformed_dataset, batch_size=batch_size, shuffle=True)
 
     for epoch in range(epochs):
+        epoch_loss = 0
         for i, sample in enumerate(tqdm(dataloader)):
             for n, angle in enumerate([90, 0, 180, 270]):
                 # print(n)
@@ -132,8 +133,8 @@ if __name__ == "__main__":
                 loss_contrastive = loss_contrastive_neg + loss_contrastive_pos
                 loss_contrastive.backward()
                 optimizer.step()
-                if i % 10 == 0 :
-                    print("Epoch number {}\n Current loss {}\n".format(epoch,loss_contrastive))
+                epoch_loss = loss_contrastive.detach()
+        print("Epoch number {}\n Current loss {}\n".format(epoch, epoch_loss))
                     # iteration_number +=10
                     # counter.append(iteration_number)
                     # loss_history.append(loss_contrastive.data[0])
