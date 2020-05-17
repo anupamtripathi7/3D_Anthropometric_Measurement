@@ -1,19 +1,3 @@
-import torch
-import torch.nn.functional as F
-
-output1 = torch.tensor([[1, 2, 3, 4, 5]])
-output2 = torch.tensor([[1, 2, 3, 4, 6]])
-label = 1
-margin = 2
-euclidean_distance = F.pairwise_distance(output1, output2)
-loss_contrastive = torch.mean((1-label) * torch.pow(euclidean_distance, 2) + (label) * torch.pow(torch.clamp(margin - euclidean_distance, min=0.0), 2))
-print(loss_contrastive)
-
-
-
-# https://github.com/facebookresearch/pytorch3d/blob/master/docs/tutorials/render_textured_meshes.ipynb
-
-
 import os
 import torch
 import matplotlib.pyplot as plt
@@ -121,28 +105,26 @@ def find_adj_list(verts, faces):
 
 
 if __name__ == "__main__":
-    verts, faces_idx, _ = load_obj(os.path.join(data_path, 'human.obj'))
+    verts, faces_idx, _ = load_obj('data/male.obj')
     faces = faces_idx.verts_idx
 
     print(verts.size())
-    #     verts = 100 * verts
-    # print(verts)
 
     verts_rgb = torch.ones_like(verts)[None]  # (1, V, 3)
-    #     for x in range(6370,6371):
-    #         verts_rgb[0, x] = torch.tensor([1., 0., 0.])
+    for x in range(6370,6371):
+        verts_rgb[0, x] = torch.tensor([1., 0., 0.])
 
-    #     for n, v in enumerate(verts):
-    #         if v[1] >= 0.081 and v[1] <= 0.085:
-    #             verts_rgb[0, n] = torch.tensor([1., 0., 0.])
-    #             print(n)
+    for n, v in enumerate(verts):
+        if v[1] >= 0.081 and v[1] <= 0.085:
+            verts_rgb[0, n] = torch.tensor([1., 0., 0.])
+            print(n)
 
-    #     verts_rgb[0, 3000] = torch.tensor([1., 0., 0.])
-    #     verts_rgb[0, 4000] = torch.tensor([1., 0., 0.])
-    #     verts_rgb[0, 5000] = torch.tensor([1., 0., 0.])
+    verts_rgb[0, 3000] = torch.tensor([1., 0., 0.])
+    verts_rgb[0, 4000] = torch.tensor([1., 0., 0.])
+    verts_rgb[0, 5000] = torch.tensor([1., 0., 0.])
 
-    #     print(verts[6370])
-    #     verts_rgb[0, 4167] = torch.tensor([1., 0., 0.])
+    print(verts[6370])
+    verts_rgb[0, 4167] = torch.tensor([1., 0., 0.])
     # 679 and 4167
     print('Starting find_adj_list()')
     adj_list = find_adj_list(verts, faces)
