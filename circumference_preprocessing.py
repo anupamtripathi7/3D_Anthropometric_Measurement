@@ -19,10 +19,30 @@ from pytorch3d.renderer import (
     TexturedSoftPhongShader,
     HardPhongShader
 )
+import os
+import torch
+import matplotlib.pyplot as plt
+from pytorch3d.io import load_objs_as_meshes, load_obj
+from pytorch3d.structures import Meshes, Textures
+from pytorch3d.renderer import (
+    look_at_view_transform,
+    OpenGLPerspectiveCameras,
+    PointLights,
+    DirectionalLights,
+    Materials,
+    RasterizationSettings,
+    MeshRenderer,
+    MeshRasterizer,
+    HardFlatShader
+)
+import cv2
+from tqdm import tqdm
+import numpy as np
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 data_path = 'Test/test_pytorch3D/projection/data'
+data_path = '../../smpl_pytorch'
 
 def find_adj_list(verts, faces):
 
@@ -44,61 +64,17 @@ def find_adj_list(verts, faces):
 
 if __name__ == "__main__":
 
-    verts, faces, _ = load_obj('data/male.obj')
-    adj_list = find_adj_list(verts, faces.verts_idx)
-    # print(verts.size())
-    # print(faces_idx)
-    # print(verts.size())
-    # print(faces_idx)
+    # verts, faces, _ = load_obj('data/male.obj')
 
-
-        # print(idx, face, [(x, adj_list[x]) for x in range(0, 6)])
-
-    # print('a')
-    # print('b',adj_list)
-    print(len(adj_list), faces.shape)
-    print(adj_list)
-    # print(adj_list[adj_list.keys()[1]])
-
-
-# Yeh
-# https://github.com/facebookresearch/pytorch3d/blob/master/docs/tutorials/render_textured_meshes.ipynb
-
-
-import os
-import torch
-import matplotlib.pyplot as plt
-from pytorch3d.io import load_objs_as_meshes, load_obj
-from pytorch3d.structures import Meshes, Textures
-from pytorch3d.renderer import (
-    look_at_view_transform,
-    OpenGLPerspectiveCameras,
-    PointLights,
-    DirectionalLights,
-    Materials,
-    RasterizationSettings,
-    MeshRenderer,
-    MeshRasterizer,
-    HardFlatShader
-)
-import cv2
-from tqdm import tqdm
-import numpy as np
-# from astar import astar, find_adj_list
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-data_path = '../../smpl_pytorch'
-
-
-if __name__ == "__main__":
-    verts, faces_idx, _ = load_obj(os.path.join(data_path, 'human.obj'))
+    verts, faces_idx, _ = load_obj('data/male.obj')
     faces = faces_idx.verts_idx
 
     print(verts.size())
-    #     verts = 100 * verts
-    # print(verts)
 
     verts_rgb = torch.ones_like(verts)[None]  # (1, V, 3)
+    print(verts_rgb.size())
+    verts_rgb[0, 150:200] = torch.tensor([1, 0, 0])
+
     textures = Textures(verts_rgb=verts_rgb.to(device))
 
     R, T = look_at_view_transform(1.5, 0, 0, up=((0, 1, 0),), at=((0, 0, 0),))
@@ -133,5 +109,23 @@ if __name__ == "__main__":
     plt.show()
     #     plt.savefig('fig.jpg')
     cv2.imwrite('fig.jpg', images.detach().cpu().numpy()[0, :, :, :-1])
+
+    # adj_list = find_adj_list(verts, faces.verts_idx)
+    # print(verts.size())
+    # print(faces_idx)
+    # print(verts.size())
+    # print(faces_idx)
+
+    # print(idx, face, [(x, adj_list[x]) for x in range(0, 6)])
+
+    # print('a')
+    # print('b',adj_list)
+    # print(len(adj_list), faces.shape)
+    # print(adj_list)
+    # print(adj_list[adj_list.keys()[1]])
+
+    # Yeh
+    # https://github.com/facebookresearch/pytorch3d/blob/master/docs/tutorials/render_textured_meshes.ipynb
+
 
 
