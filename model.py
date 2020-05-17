@@ -55,7 +55,6 @@ class Discriminator(nn.Module):
         return output
 
     def forward(self, input1, input2):
-        print(input1.size(), input2.size())
         output1 = self.forward_pass(input1)
         output2 = self.forward_pass(input2)
         return output1, output2
@@ -115,10 +114,10 @@ if __name__ == "__main__":
                 real_angle = angle + random.randint(-5, 5)
                 real = project_mesh_silhouette(mesh[sample['gender'][0]][i], real_angle)
                 fake = sample['images'][0][n].unsqueeze(0).unsqueeze(0)
-                print("here")
-                print(projection.size())
-                print(real.size())
-                print(fake.size())
+                # print("here")
+                # print(projection.size())
+                # print(real.size())
+                # print(fake.size())
 
                 # print("b",fake.size())
                 # img0, img1, label = data
