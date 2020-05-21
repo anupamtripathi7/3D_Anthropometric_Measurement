@@ -23,7 +23,7 @@ class Metadata:
         self.g_lr = 1e-2
         self.beta = 0.9
         self.inp_feature = 512 * 512
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
         self.smpl_mesh_path = "Test/smpl_pytorch/human.obj"
         self.path = "NOMO_preprocess/data"
         self.raster_settings = RasterizationSettings(
@@ -79,18 +79,19 @@ def project_mesh_silhouette(mesh, angle):
 
 
     image = renderer(mesh)
-    silhoutte = image.clone()
+    silhoutte = image.data.clone()
     silhoutte = silhoutte.detach().cpu().numpy()[0, :, :, :-1]
     image_cpy = cv2.normalize(silhoutte, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
     silhoutte = cv2.Canny(image_cpy, 100, 500)
     # cv2.imshow('Frame', silhoutte)
     # cv2.waitKey(0)
     # Display the resulting frame
-    silhoutte = torch.Tensor(silhoutte)
-    image[0,:,:,0] = torch.tensor(silhoutte)
-    image = image[:, : , : ,:-3].permute(0,3,1,2)
+    silhoutte = torch.tensor(silhoutte)
+    image[0, :, :, 0] = torch.tensor(silhoutte)
+    image = image[:, :, :, :-3].permute(0, 3, 1, 2)
 
     return image
+
 
 if __name__ == "__main__":
     m = Metadata

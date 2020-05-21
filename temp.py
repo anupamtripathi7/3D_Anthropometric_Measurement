@@ -44,46 +44,42 @@ def astar(adj_list, start_idx, end_idx, verts):
     end_node.g = end_node.h = end_node.f = 0
 
     # Initialize both open and closed list
-    open_list = [start_node]
-    closed_list = []
+    open_list = {start_node.idx: start_node}
+    closed_list = {}
     counter = 0
     # Loop until you find the end
     while open_list:
-
         # if counter % 2 == 0:
         #     print(len(open_list), len(closed_list))
 
         # Get the current node
-        current_node = open_list[0]
-        current_index = 0
-        for index, item in enumerate(open_list):
-            if item.f < current_node.f:
-                current_node = item
-                current_index = index
+        current_index = list(open_list.keys())[0]
+        for key, value in open_list.items():
+            if value.f < open_list[current_index].f:
+                current_index = key
 
         # Pop current off open list, add to closed list
-        open_list.pop(current_index)
-        closed_list.append(current_node)
+        closed_list[current_index] = open_list[current_index]
+        del open_list[current_index]
 
         # Found the goal
-        if current_node.idx == end_node.idx:
+        if closed_list[current_index].idx == end_node.idx:
 
             path = []
-            current = current_node
+            current = closed_list[current_index]
             while current is not None:
                 path.append(current.idx)
                 current = current.parent
             return path[::-1] # Return reversed path
 
         # Add the neighbours nodes to open list
-        for neighbour in adj_list[current_node.idx]:
-            new_node = Node(current_node, neighbour)
-            new_node.g = current_node.g + 0.01
+        for neighbour in adj_list[closed_list[current_index].idx]:
+            new_node = Node(closed_list[current_index], neighbour)
+            new_node.g = closed_list[current_index].g + 0.01
             new_node.h = np.linalg.norm(verts[new_node.idx] - verts[end_node.idx])
             new_node.f = new_node.g + new_node.h
-            if new_node not in closed_list:
-                open_list.append(new_node)
-                open_list = list(set(open_list))
+            if new_node.idx not in list(closed_list.keys()) and new_node.idx not in list(open_list.keys()):
+                open_list[new_node.idx] = new_node
         counter += 1
 
 
@@ -115,33 +111,41 @@ if __name__ == "__main__":
     #     verts_rgb[0, x] = torch.tensor([1., 0., 0.])
 
     for n, v in enumerate(verts):
-        print(v)
-        if v[1] >= 0.031 and v[1] <= 0.035:
-            verts_rgb[0, n] = torch.tensor([1., 0., 0.])
+        # print(v)
+        if v[1] >= -0.78 and v[1] <= -0.77 and v[0] >= -0.1 and v[0] <= 0:
+            # print(v)
+            # verts_rgb[0, n] = torch.tensor([1., 0., 0.])
             print(n)
     #
-    #
-    # verts_rgb[0, 4167] = torch.tensor([1., 0., 0.])
-    # 679 and 4167
-    print('Starting find_adj_list()')
+    #3474
+    verts_rgb[0, 657] = torch.tensor([1., 0., 0.])
+    # 629 and 1388 1679
+    # print('Starting find_adj_list()')
     adj_list = find_adj_list(verts, faces)
-    path1 = astar(adj_list, 1784, 679, verts)
-    path2 = astar(adj_list, 679, 4167, verts)
-    path3 = astar(adj_list, 4167, 1784, verts)
+    path1 = astar(adj_list, 5325, 1862, verts)
+    # path4 = astar(adj_list, 3134, 1477, verts)
+    path2 = astar(adj_list, 1679, 1388, verts)
+    path3 = astar(adj_list, 1388, 629, verts)
     path = path1 + path2 + path3
-    print(path)
+    print(path1)
+
+    #848, 964, 4167
 
     # 1784, 679, 4167
     # [679, 855, 920, 861, 858, 1769, 4344, 4345, 4404, 4341, 4167]
     # [1784, 5246, 5244, 6388, 6389, 4373, 4330, 4331, 4316, 4317, 4332, 4425, 4921, 4166, 4167]
     # [1784, 1781, 1780, 3122, 2928, 886, 845, 844, 831, 830, 846, 939, 1449, 678, 679]
 
-    # for point in path:
+    # for point in path1:
     #     verts_rgb[0, point] = torch.tensor([1., 0., 0.])
+
+    # verts_rgb[0, 4386] = torch.tensor([0, 1, 0.])
+    # verts_rgb[0, 964] = torch.tensor([0, 1, 0.])
+    # verts_rgb[0, 848] = torch.tensor([0, 1, 0.])
 
     textures = Textures(verts_rgb=verts_rgb.to(device))
 
-    R, T = look_at_view_transform(1.5, 0, 0, up=((0, 1, 0),), at=((0, 0, 0),))
+    R, T = look_at_view_transform(1.5, 0, 180, up=((0, 1, 0),), at=((0, 0, 0),))
     cameras = OpenGLPerspectiveCameras(device=device, R=R, T=T)
 
     mesh = Meshes(

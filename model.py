@@ -50,7 +50,7 @@ class Discriminator(nn.Module):
 
     def forward_pass(self, x):
         output = self.cnn1(x.float())
-        output = output.view(output.size()[0], -1)
+        output = output.reshape(output.size()[0], -1)
         output = self.fc1(output)
         return output
 
@@ -78,21 +78,23 @@ class ContrastiveLoss(torch.nn.Module):
 
 
 if __name__ == "__main__":
-    epochs = 2
+    epochs = 100
     batch_size = 1
     num_males = 179
     num_females = 177
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cpu")
+    lr = 1e-5
     smpl_mesh_path = "data/male.obj"
     path = "NOMO_preprocess/data"
 
     model = Discriminator()
+    model = model.to(device)
     criterion = ContrastiveLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     counter = []
     loss_history = []
-    iteration_number= 0
+    iteration_number = 0
 
     meta = Metadata()
 
@@ -108,21 +110,13 @@ if __name__ == "__main__":
     for epoch in range(epochs):
         epoch_loss = 0
         for i, sample in enumerate(tqdm(dataloader)):
-            for n, angle in enumerate([90, 0, 180, 270]):
+            for n, angle in enumerate([0, 90, 180, 270]):
                 # print(n)
                 optimizer.zero_grad()
-                projection = project_mesh_silhouette(mesh[sample['gender'][0]][i], angle)
+                projection = project_mesh_silhouette(mesh[sample['gender'][0]][i], angle).to(device)
                 real_angle = angle + random.randint(-5, 5)
-                real = project_mesh_silhouette(mesh[sample['gender'][0]][i], real_angle)
-                fake = sample['images'][0][n].unsqueeze(0).unsqueeze(0)
-                # print("here")
-                # print(projection.size())
-                # print(real.size())
-                # print(fake.size())
-
-                # print("b",fake.size())
-                # img0, img1, label = data
-                # img0, img1, label = Variable(img0).cuda(), Variable(img1).cuda() , Variable(label).cuda()
+                real = project_mesh_silhouette(mesh[sample['gender'][0]][i], real_angle).to(device)
+                fake = sample['images'][0][n].unsqueeze(0).unsqueeze(0).to(device)
                 output1, output2 = model(projection, real)
 
                 loss_contrastive_pos = criterion(output1, output2, 0)
@@ -133,7 +127,3 @@ if __name__ == "__main__":
                 optimizer.step()
                 epoch_loss = loss_contrastive.detach()
         print("Epoch number {}\n Current loss {}\n".format(epoch, epoch_loss))
-                    # iteration_number +=10
-                    # counter.append(iteration_number)
-                    # loss_history.append(loss_contrastive.data[0])
-    # show_plot(counter,loss_history)

@@ -1,25 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="anupamtripathi@10.0.0.104:22">
+  <component name="PublishConfigData" autoUpload="Always" serverName="anupam@165.124.181.97:22">
     <serverData>
-      <paths name="anupamtripathi@10.0.0.104:22">
+      <paths name="anupam@165.124.181.97:22">
         <serverdata>
           <mappings>
-            <mapping deploy="/Users/anupamtripathi/Nikita_idar_sync_kar_aur_kahi_NAHI" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nraut@wcdl2.deeplearninglab.northwestern.edu:22">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nraut@wcdl2.deeplearninglab.northwestern.edu:22 agent">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/home/anupam/git" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

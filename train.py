@@ -11,7 +11,7 @@ from pytorch3d.loss import (
     mesh_normal_consistency,
 )
 import numpy as np
-from model import Generator, Discriminator
+from model import Generator, Discriminator, ContrastiveLoss
 import cv2
 from utils import project_mesh_silhouette, Metadata
 from NOMO import Nomo
@@ -29,26 +29,21 @@ import random
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # smpl_mesh_path = "Test/smpl_pytorch/human.obj"
 # path = "NOMO_preprocess/data"
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-def train_discriminator(d, projection, real, generated, optimizer, loss):
-    optimizer.zero_grad()
-
-    # train on real images
-    pred_real = d(real)
-    loss_real = loss(pred_real, torch.ones(meta.batch_size, 1))
-
-    # train on generated images
-    pred_generated = d(generated)
-    loss_generated = loss(pred_generated, torch.zeros(meta.batch_size, 1))
-
-    if loss_generated + loss_real >= 0.01:
-        loss_generated.backward()
-        loss_real.backward()
-        optimizer.step()
+def train_discriminator(d, c, projection, real, fake, optimizer):
+    output1, output2 = d(projection, real)
+    output3, output4 = d(projection, fake)
+    loss_contrastive_pos = c(output1, output2, 0)
+    loss_contrastive_neg = c(output3, output4, 1)
+    loss_contrastive = loss_contrastive_neg + loss_contrastive_pos
+    print('Test Loss =  {}'.format(loss_contrastive))
+    loss_contrastive.backward()
+    optimizer.step()
 
 
 if __name__ == "__main__":
+    print('a')
 
     meta = Metadata()
     mesh_male = [load_objs_as_meshes([os.path.join(meta.path, 'male.obj')], device=meta.device, load_textures=False)] * meta.n_males
@@ -56,35 +51,45 @@ if __name__ == "__main__":
     mesh_female = [load_objs_as_meshes([os.path.join(meta.path, 'female.obj')], device=meta.device, load_textures=False)] * meta.n_females
     mesh = {'male': mesh_male, 'female': mesh_female}
 
-    discriminator = Discriminator(meta.inp_feature)
-    generator = Generator()
+    discriminator = Discriminator()
+    discriminator = discriminator.to(meta.device)
 
-    d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=meta.d_lr)
-    g_optimizer = torch.optim.Adam(generator.parameters(), lr=meta.g_lr)
-
-    d_loss = torch.nn.BCELoss()
-
-    deform_verts = torch.full(mesh.verts_packed().shape, 0.0, device=meta.device, requires_grad=True)
+    criterion = ContrastiveLoss().to(meta.device)
+    optimizer = torch.optim.Adam(discriminator.parameters(), lr=meta.d_lr)
+    # g_optimizer = torch.optim.Adam(generator.parameters(), lr=meta.g_lr)
 
     print('loading data....')
     transformed_dataset = Nomo(folder=meta.path)
     dataloader = DataLoader(transformed_dataset, batch_size=meta.batch_size, shuffle=True)
-    print('doned')
+    print('done')
 
     for epoch in range(meta.epochs):
+        epoch_loss = 0
         for i, sample in enumerate(tqdm(dataloader)):
-            print('in loop')
+            deform_verts = torch.full(mesh['male'][i].verts_packed().shape, 0.0, device=meta.device,
+                                      requires_grad=True)
             for n, angle in enumerate([0, 90, 180, 270]):
-                print()
-                projection = project_mesh_silhouette(mesh[sample['gender']][i], angle)
+                print(n)
+
+                optimizer.zero_grad()
+                # mesh[sample['gender'][0]][i] = mesh[sample['gender'][0]][i].offset_verts(deform_verts)
+                projection = project_mesh_silhouette(mesh[sample['gender'][0]][i], angle).to(meta.device)
                 real_angle = angle + random.randint(-5, 5)
-                real = project_mesh_silhouette(mesh[sample['gender']][i], real_angle)
-                inp = sample['images'][n]
-                train_discriminator(discriminator, projection, real, inp, d_optimizer, d_loss)
+                real = project_mesh_silhouette(mesh[sample['gender'][0]][i], real_angle).to(meta.device)
+                fake = sample['images'][0][n].unsqueeze(0).unsqueeze(0).to(meta.device)
+                # train_discriminator(discriminator, criterion, projection, real, fake, d_optimizer)
+                output1, output2 = discriminator(projection, real)
 
-                loss = discriminator(projection, inp)
-                loss.backwards()
-                g_optimizer.step()
-                mesh[sample['gender']][i] = mesh[sample['gender']][i].offset_verts(deform_verts)
+                loss_contrastive_pos = criterion(output1, output2, 0)
+                output3, output4 = discriminator(projection, fake)
+                loss_contrastive_neg = criterion(output3, output4, 1)
+                loss_contrastive = loss_contrastive_neg + loss_contrastive_pos
+                loss_contrastive.backward()
+                optimizer.step()
 
-                print('Test Loss =  {}'.format(loss))
+                epoch_loss = loss_contrastive.detach()
+
+        print("Epoch number {}\n Current loss {}\n".format(epoch, epoch_loss))
+
+
+
