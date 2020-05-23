@@ -18,6 +18,7 @@ from NOMO import Nomo
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import random
+import matplotlib.pyplot as plt
 
 
 # batch_size = 1
@@ -31,23 +32,20 @@ import random
 # path = "NOMO_preprocess/data"
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def train_discriminator(d, c, projection, real, fake, optimizer):
-    output1, output2 = d(projection, real)
-    output3, output4 = d(projection, fake)
-    loss_contrastive_pos = c(output1, output2, 0)
-    loss_contrastive_neg = c(output3, output4, 1)
-    loss_contrastive = loss_contrastive_neg + loss_contrastive_pos
-    print('Test Loss =  {}'.format(loss_contrastive))
-    loss_contrastive.backward()
-    optimizer.step()
+# def train_discriminator(d, c, projection, real, fake, optimizer):
+#     output1, output2 = d(projection, real)
+#     output3, output4 = d(projection, fake)
+#     loss_contrastive_pos = c(output1, output2, 0)
+#     loss_contrastive_neg = c(output3, output4, 1)
+#     loss_contrastive = loss_contrastive_neg + loss_contrastive_pos
+#     print('Test Loss =  {}'.format(loss_contrastive))
+#     loss_contrastive.backward()
+#     optimizer.step()
 
 
 if __name__ == "__main__":
-    print('a')
-
     meta = Metadata()
     mesh_male = [load_objs_as_meshes([os.path.join(meta.path, 'male.obj')], device=meta.device, load_textures=False)] * meta.n_males
-    print(mesh_male)
     mesh_female = [load_objs_as_meshes([os.path.join(meta.path, 'female.obj')], device=meta.device, load_textures=False)] * meta.n_females
     mesh = {'male': mesh_male, 'female': mesh_female}
 
@@ -63,21 +61,25 @@ if __name__ == "__main__":
     dataloader = DataLoader(transformed_dataset, batch_size=meta.batch_size, shuffle=True)
     print('done')
 
-    for epoch in range(meta.epochs):
+    for epoch in tqdm(range(meta.epochs)):
         epoch_loss = 0
         for i, sample in enumerate(tqdm(dataloader)):
             deform_verts = torch.full(mesh['male'][i].verts_packed().shape, 0.0, device=meta.device,
                                       requires_grad=True)
             for n, angle in enumerate([0, 90, 180, 270]):
-                print(n)
 
                 optimizer.zero_grad()
-                # mesh[sample['gender'][0]][i] = mesh[sample['gender'][0]][i].offset_verts(deform_verts)
+                # print(mesh[sample['gender'][0]][i])
+                mesh[sample['gender'][0]][i] = mesh[sample['gender'][0]][i].offset_verts(deform_verts.clone())
+                # print(mesh[sample['gender'][0]][i])
                 projection = project_mesh_silhouette(mesh[sample['gender'][0]][i], angle).to(meta.device)
+                proj_img = projection.clone()
+                plt.imshow(proj_img.squeeze().detach().cpu().numpy())
+                plt.title('Epoch {} Angle {} Gender {}'.format(str(epoch), str(angle), sample['gender'][0]))
+                plt.show()
                 real_angle = angle + random.randint(-5, 5)
                 real = project_mesh_silhouette(mesh[sample['gender'][0]][i], real_angle).to(meta.device)
                 fake = sample['images'][0][n].unsqueeze(0).unsqueeze(0).to(meta.device)
-                # train_discriminator(discriminator, criterion, projection, real, fake, d_optimizer)
                 output1, output2 = discriminator(projection, real)
 
                 loss_contrastive_pos = criterion(output1, output2, 0)

@@ -1,5 +1,8 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
+from pytorch3d.io import load_obj, save_obj, load_objs_as_meshes
+import os
 from pytorch3d.renderer import (
     look_at_view_transform,
     OpenGLPerspectiveCameras,
@@ -19,11 +22,12 @@ class Metadata:
     def __init__(self):
         self.batch_size = 1
         self.epochs = 50
-        self.d_lr = 1e-2
-        self.g_lr = 1e-2
+        self.d_lr = 1e-4
+        self.g_lr = 1e-4
         self.beta = 0.9
         self.inp_feature = 512 * 512
         self.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cpu")
         self.smpl_mesh_path = "Test/smpl_pytorch/human.obj"
         self.path = "NOMO_preprocess/data"
         self.raster_settings = RasterizationSettings(
@@ -53,7 +57,7 @@ def project_mesh_silhouette(mesh, angle):
     """
     # print(mesh.verts_list()[0].size())
     m = Metadata()
-    R, T = look_at_view_transform(2, 0, angle, up=((0, 1, 0),), at=((0, 0, 0),))
+    R, T = look_at_view_transform(1.75, -45, angle, up=((0, 1, 0),), at=((0, -0.25, 0),))
     cameras = OpenGLPerspectiveCameras(device=m.device, R=R, T=T)
     raster_settings = m.raster_settings
     lights = m.lights
@@ -76,24 +80,20 @@ def project_mesh_silhouette(mesh, angle):
     mesh.textures._num_faces_per_mesh = mesh._num_faces_per_mesh.tolist()
     mesh.textures._num_verts_per_mesh = mesh._num_verts_per_mesh.tolist()
 
-
-
     image = renderer(mesh)
     silhoutte = image.data.clone()
     silhoutte = silhoutte.detach().cpu().numpy()[0, :, :, :-1]
     image_cpy = cv2.normalize(silhoutte, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
     silhoutte = cv2.Canny(image_cpy, 100, 500)
-    # cv2.imshow('Frame', silhoutte)
-    # cv2.waitKey(0)
-    # Display the resulting frame
     silhoutte = torch.tensor(silhoutte)
-    image[0, :, :, 0] = torch.tensor(silhoutte)
+    image[0, :, :, 0].data = torch.tensor(silhoutte).data
     image = image[:, :, :, :-3].permute(0, 3, 1, 2)
 
     return image
 
 
 if __name__ == "__main__":
-    m = Metadata
-    img = cv2.imread('human_0_270.jpg')
-    get_silhoutte(img)
+    meta = Metadata()
+    smpl_mesh = load_objs_as_meshes([os.path.join(meta.path, 'male.obj')])
+    plt.imshow(project_mesh_silhouette(smpl_mesh, 0).squeeze().detach().cpu().numpy())
+    plt.show()
