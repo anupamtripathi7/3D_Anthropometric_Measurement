@@ -77,6 +77,17 @@ class ContrastiveLoss(torch.nn.Module):
         return loss_contrastive
 
 
+class Scale_Net(nn.Module):
+
+    def __init__(self):
+        super(Scale_Net, self).__init__()
+        self.embedding = nn.Embedding(11, 1)
+
+    def forward(self, x):
+        x = self.embedding(x.long())
+        return x
+
+
 if __name__ == "__main__":
     epochs = 100
     batch_size = 1

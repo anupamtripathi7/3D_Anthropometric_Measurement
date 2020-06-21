@@ -17,8 +17,6 @@ class Nomo(Dataset):
         data = self.get_data('male', measurements_path, projections_path)
         self.data = np.append(data, self.get_data('female', measurements_path, projections_path))
 
-        print(self.data.shape)
-
     def __len__(self):
         return len(self.data)
 
@@ -26,7 +24,7 @@ class Nomo(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        images = torch.tensor(self.data[idx]['images'])
+        images = torch.tensor(self.data[idx]['images'], dtype=torch.float32)
         measurements = self.data[idx]['measurements']
         gender = self.data[idx]['gender']
         sample = {'images': images, 'measurements': measurements, 'gender': gender}
@@ -49,10 +47,9 @@ class Nomo(Dataset):
                 images.append(img)
             images = np.array(images)
             data.append({'images': images, 'measurements': lines, 'gender': gender})
-            if n == 2:
-                break
+            # if n == 24:
+            #     break
         return np.array(data)
-
 
 # if __name__ == "__main__":
 #
